@@ -39,6 +39,9 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("White"))
     gs = ChessEngine.GameState()
+    validMoves = gs.getValidMoves()
+    moveMade = False #flag variable for when a move is made if they make a valid move regenrate the moves is not then dont
+
     loadImages() #Only do this before the while looop
     print(gs.board)
     running = True
@@ -48,6 +51,8 @@ def main():
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+
+            #Mouse Handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 location = p.mouse.get_pos()#This is the (x,y) location of the mouse
                 col = location[0]//SQ_SIZE
@@ -57,13 +62,23 @@ def main():
                     playerClicks = [] #Clear player clicks
                 else:
                     sqSelected = (row, col)
-                    playerClicks.append(sqSelected) #Appen for both the first and second click
+                    playerClicks.append(sqSelected) #Append for both the first and second click
                 if len(playerClicks) == 2: #After the second click
                     move = ChessEngine.Move(playerClicks[0],playerClicks[1], gs.board)
                     print(move.getChessNotation())
-                    gs.makeMove(move)
+                    if move in validMoves:
+                        gs.makeMove(move)
+                        moveMade = True # a valid move was made switch the flag
                     sqSelected = () #reset user clicks
                     playerClicks = []
+            elif e.type == p.KEYDOWN:
+                if e.key == p.K_z:# undo when Z is pressed
+                    gs.undoMove()
+                    moveMade = True
+
+        if moveMade:
+            validMoves = gs.getValidMoves()
+            moveMade = False
 
         drawGameState(screen,gs)
         clock.tick(MAX_FPS)
