@@ -43,7 +43,6 @@ def main():
     moveMade = False #flag variable for when a move is made if they make a valid move regenrate the moves is not then dont
 
     loadImages() #Only do this before the while looop
-    print(gs.board)
     running = True
     sqSelected = () #initially no square is picked, keep track of users last click (tuple: (row,col))
     playerClicks = [] #Keep track of player clicks (two tuples: [(6,4),(4,4) ] )
