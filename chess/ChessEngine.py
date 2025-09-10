@@ -21,7 +21,7 @@ class GameState():
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
 
         self.moveFunctions = {'p':self.getPawnMoves,'R':self.getRookMoves,'N':self.getKnightMoves,
-                           'B':self.getBishopMoves,"Q":self.getQueenMoves,'K':self.getKingMoves }
+                              'B':self.getBishopMoves,"Q":self.getQueenMoves,'K':self.getKingMoves }
 
         self.whiteToMove = True
         self.moveLog = []
@@ -102,22 +102,22 @@ class GameState():
     Get all rook moves located at row , col  and add these to the move list 
     """
     def getRookMoves(self,r,c,moves):
-       enemyColor = 'b' if self.whiteToMove else 'w'
-       directions = ((-1,0),(0,-1),(1,0),(0,1))
-       for d in directions:
-           for i in range(1, 8):
-               endRow = r + d[0] * i
-               endCol = c + d[1] * i
-               if 0 <= endRow < 8 and 0 <= endCol < 8:
-                   endPiece = self.board[endRow][endCol]
-                   if endPiece == "--":  # Meaning that this is a valid empty space
-                       moves.append(Move((r, c), (endRow, endCol), self.board))
-                   elif endPiece[0] == enemyColor:  # Meaning this is a valid piece we can move to
-                       moves.append(Move((r, c), (endRow, endCol), self.board))
-                       break  # stop after capturing
-                   else:
-                       break
-               else:
+        enemyColor = 'b' if self.whiteToMove else 'w'
+        directions = ((-1,0),(0,-1),(1,0),(0,1))
+        for d in directions:
+            for i in range(1, 8):
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--":  # Meaning that this is a valid empty space
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:  # Meaning this is a valid piece we can move to
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break  # stop after capturing
+                    else:
+                        break
+                else:
                     break
 
 
@@ -126,7 +126,27 @@ class GameState():
     """
 
     def getKnightMoves(self,r,c,moves):
-        pass
+        enemyColor = 'b' if self.whiteToMove else 'w'
+        directions = ((-2,1),(-2,-1),(-1,2),(-1,-2),(2,1),(2,-1),(1,2),(1,-2)) # All the possible moves / direction a Knight can move
+
+        for d in directions:
+            #Notice here we got rid of the nested for i in range, this is because the knight has fixed squares it can
+            #jump too we needn't calculate all possible moves for it across the entire board, just the current possible
+            #moves
+            endRow = r + d[0]
+            endCol = c + d[1]
+            if 0<= endRow< 8 and 0 <= endCol <8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece == "--":
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
+                elif endPiece[0] == enemyColor:
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
+                    break
+                else:
+                    break
+            else:
+                break
+
 
     """
     Get all Bishop moves loacted at row, col and add these to the move list
