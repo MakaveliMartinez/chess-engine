@@ -62,7 +62,7 @@ class GameState():
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                     piece = self.board[r][c][1]
-                    self.moveFunctions[piece](r,c,moves)
+                    self.moveFunctions[piece](r,c,moves)# Calls appropriate move function based on piece type
         return moves
 
 
@@ -102,7 +102,24 @@ class GameState():
     Get all rook moves located at row , col  and add these to the move list 
     """
     def getRookMoves(self,r,c,moves):
-       pass
+       enemyColor = 'b' if self.whiteToMove else 'w'
+       directions = ((-1,0),(0,-1),(1,0),(0,1))
+       for d in directions:
+           for i in range(1, 8):
+               endRow = r + d[0] * i
+               endCol = c + d[1] * i
+               if 0 <= endRow < 8 and 0 <= endCol < 8:
+                   endPiece = self.board[endRow][endCol]
+                   if endPiece == "--":  # Meaning that this is a valid empty space
+                       moves.append(Move((r, c), (endRow, endCol), self.board))
+                   elif endPiece[0] == enemyColor:  # Meaning this is a valid piece we can move to
+                       moves.append(Move((r, c), (endRow, endCol), self.board))
+                       break  # stop after capturing
+                   else:
+                       break
+               else:
+                    break
+
 
     """
     Get all Knight moves located at row, col , add and them to the move list
@@ -115,7 +132,26 @@ class GameState():
     Get all Bishop moves loacted at row, col and add these to the move list
     """
     def getBishopMoves(self,r,c,moves):
-        pass
+        enemyColor = 'b' if self.whiteToMove else 'w' # meaning if its white move than the enemy color is b otherwise the enemy color would be w since it would be blacks turn
+        directions = ((-1,-1),(-1,1),(1,-1),(1,1)) # all possible diagonal squares from the bishop
+
+        for d in directions:
+            for i in range(1,8):
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0<= endCol <8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--":
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break
+                    else:
+                        break
+                else:
+                    break
+
+
 
     """
     Get all Queen moves located at row, col and add these to the move list
