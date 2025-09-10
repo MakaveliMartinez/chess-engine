@@ -2,6 +2,44 @@
 This class is responsible for storing all the information about the current state of a game
 and also be responsible for determining moves that are valid in the current state & keep a move log
 """
+from pydoc import allmethods
+
+
+class Move():
+    #maping keys to values
+    #key : value
+    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4,
+                   "5": 3, "6": 2, "7": 1, "8": 0}
+    rowsToRanks = {v: k for k, v in ranksToRows.items()}
+    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3,
+                   "e": 4, "f": 5, "g": 6, "h": 7}
+    colsToFiles = {v: k for k, v in filesToCols.items()}
+    def __init__(self, startSq, endSq, board):
+        self.startRow = startSq[0]
+        self.startCol = startSq[1]
+        self.endRow = endSq[0]
+        self.endCol = endSq[1]
+        self.pieceMoved = board[self.startRow][self.startCol]
+        self.pieceCaptured = board[self.endRow][self.endCol]
+        self.moveId = self.startRow *1000 + self.startCol *100 + self.endRow*10 + self.endCol
+        #print(self.moveId)
+
+    """
+    Overriding the equals method
+    """
+    def __eq__(self, other):
+        if isinstance(other, Move):
+            return self.moveId == other.moveId
+        return False
+
+
+    def getChessNotation(self):
+        #can stuff to make it like the official notation
+        return self.pieceMoved+ " "+ self.getRankFile(self.startRow, self.startCol)+"-->" + self.getRankFile(self.endRow, self.endCol )
+
+    def getRankFile(self,r,c):
+        return self.colsToFiles[c] + self.rowsToRanks[r]
+
 
 
 
@@ -82,7 +120,7 @@ class GameState():
                 if self.board[r-1][c+1][0] == 'b': #enemy piece to capture
                     moves.append(Move((r, c ), (r - 1, c +1), self.board))
         else:
-            if self.board[r-5][c] =="--": #Square infront of black pawn go down one
+            if self.board[r+1][c] =="--": #Square infront of black pawn go down one
                 moves.append(Move((r,c),(r+1,c),self.board))
                 if r == 1 and self.board[r+2][c] == "--": #Double pawn move up the board black side
                     moves.append(Move((r, c), (r + 2, c), self.board))
@@ -126,7 +164,7 @@ class GameState():
     """
 
     def getKnightMoves(self,r,c,moves):
-        enemyColor = 'b' if self.whiteToMove else 'w'
+        allyColor = 'w' if self.whiteToMove else 'b'
         directions = ((-2,1),(-2,-1),(-1,2),(-1,-2),(2,1),(2,-1),(1,2),(1,-2)) # All the possible moves / direction a Knight can move
 
         for d in directions:
@@ -137,15 +175,9 @@ class GameState():
             endCol = c + d[1]
             if 0<= endRow< 8 and 0 <= endCol <8:
                 endPiece = self.board[endRow][endCol]
-                if endPiece == "--":
+                if endPiece != allyColor:
                     moves.append(Move((r, c), (endRow, endCol), self.board))
-                elif endPiece[0] == enemyColor:
-                    moves.append(Move((r, c), (endRow, endCol), self.board))
-                    break
-                else:
-                    break
-            else:
-                break
+
 
 
     """
@@ -203,40 +235,13 @@ class GameState():
     Get all King moves located at row, col and add these to the move list
     """
     def getKingMoves(self,r,c,moves):
-        pass
+        allyColor = 'w' if self.whiteToMove else 'b'
+        directions = ((-1,0),(-1,-1),(-1,1),(0,-1),(0,1),(1,0),(1,1),(1,-1))
 
-
-class Move():
-    #maping keys to values
-    #key : value
-    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4,
-                   "5": 3, "6": 2, "7": 1, "8": 0}
-    rowsToRanks = {v: k for k, v in ranksToRows.items()}
-    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3,
-                   "e": 4, "f": 5, "g": 6, "h": 7}
-    colsToFiles = {v: k for k, v in filesToCols.items()}
-    def __init__(self, startSq, endSq, board):
-        self.startRow = startSq[0]
-        self.startCol = startSq[1]
-        self.endRow = endSq[0]
-        self.endCol = endSq[1]
-        self.pieceMoved = board[self.startRow][self.startCol]
-        self.pieceCaptured = board[self.endRow][self.endCol]
-        self.moveId = self.startRow *1000 + self.startCol *100 + self.endRow*10 + self.endCol
-        #print(self.moveId)
-
-    """
-    Overriding the equals method
-    """
-    def __eq__(self, other):
-        if isinstance(other, Move):
-            return self.moveId == other.moveId
-        return False
-
-
-    def getChessNotation(self):
-        #can stuff to make it like the official notation
-        return self.pieceMoved+ " "+ self.getRankFile(self.startRow, self.startCol)+"-->" + self.getRankFile(self.endRow, self.endCol )
-
-    def getRankFile(self,r,c):
-        return self.colsToFiles[c] + self.rowsToRanks[r]
+        for d in directions:
+            endRow = r + d[0]
+            endCol = c + d[1]
+            if 0<= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor: #meaning if its not an ally piece its either empty or an enemy i.e valid move
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
